@@ -1,0 +1,644 @@
+# ================================================================
+# TriakMenu - DonutSMP Style ESC / Pause Menu Button
+# Paper 1.21.11 | Skript + SkBee | Geyser/Floodgate Compatible
+# Author: Triak - Fully Customizable
+# ================================================================
+# Requirements:
+# - Paper 1.21.11 (or 1.21.6+ for Dialogs, 1.21+ for ServerLinks)
+# - Skript 2.10+
+# - SkBee 3.16.0+ (for Dialogs API)
+# - Optional: skript-reflect (for ServerLinks & Floodgate detection)
+# - Optional: Floodgate + Geyser (for Bedrock support)
+#
+# How it works:
+# - Java: Uses Minecraft 1.21.6+ Dialogs API via datapack + SkBee.
+#   A custom button "Triak Menu" appears in ESC > Pause menu.
+#   Clicking it opens a native dialog (no mod needed) that runs
+#   /triakmenu commands, which open your custom GUI.
+# - Fallback: For 1.21-1.21.5, uses Paper ServerLinks API to add
+#   "Server Links..." button in ESC.
+# - Bedrock: Geyser translates dialogs to Bedrock forms (2.5+),
+#   plus /triakmenu command works for all.
+# ================================================================
+
+options:
+    # === ESC BUTTON CONFIG ===
+    # This is the button that appears in ESC menu (via datapack)
+    esc-button-name: Triak Menu
+    esc-button-external-title: Triak Menu
+    esc-button-icon: chest
+    esc-button-icon-name: &6&lTriak Menu
+    esc-button-width: 200
+    esc-button-columns: 1
+
+    # === SERVER LINKS (Fallback for 1.21-1.21.5) ===
+    # ServerLinks only opens URLs, not commands. Use for Discord/Website.
+    enable-server-links: true
+    server-link-name: Triak Menu
+    server-link-url: https://discord.gg/triak
+    # Built-in types: REPORT_BUG, COMMUNITY_GUIDELINES, SUPPORT, STATUS, FEEDBACK, COMMUNITY, WEBSITE, FORUMS, NEWS, ANNOUNCEMENTS, or CUSTOM
+    server-link-type: CUSTOM
+
+    # === MAIN MENU GUI (Inventory) ===
+    menu-title: &8&lTriak &6&lMenu
+    menu-rows: 3
+    menu-permission: triak.menu
+    menu-sound: ENTITY_EXPERIENCE_ORB_PICKUP
+
+    # === DIALOG MENU (SkBee native dialog, DonutSMP style) ===
+    dialog-title: Triak Menu
+    dialog-external-title: Triak Menu
+    dialog-use-skbee: true
+
+    # === GEYSER / FLOODGATE BEDROCK SUPPORT ===
+    enable-bedrock-support: true
+    bedrock-prefix: .
+    bedrock-auto-message: true
+    bedrock-translate-dialogs: true # Geyser 2.5+ translates Java dialogs to Bedrock forms
+
+    # === MESSAGES ===
+    prefix: &8[&6Triak&8] 
+    no-permission: &cYou don't have permission to do that!
+    menu-opened: &aOpening Triak Menu...
+    reload-success: &aTriakMenu reloaded!
+    bedrock-detected: &7Bedrock player detected, using compatible menu.
+
+    # === COMMAND ACTIONS ===
+    # You can make buttons run any command, console command, or open other menus
+    # Use {player} placeholder for player name
+
+# ================================================================
+# VARIABLES - EDIT THESE TO CUSTOMIZE YOUR MENU BUTTONS
+# Each button: slot, material, name, lore, action type, action value, permission
+# Action types: command, console, dialog, menu, close, url
+# ================================================================
+
+# We store menu layout in variables for easy editing
+# Format: {triak::menu::slot::%slot%::material}, ::name, ::lore, ::action, ::value, ::perm
+
+on load:
+    # Clear old
+    delete {triak::menu::*}
+    delete {triak::dialog::*}
+    
+    # --- GUI MENU BUTTONS (Inventory) ---
+    # Slot 10 - Shop
+    set {triak::menu::slot::10::material} to emerald
+    set {triak::menu::slot::10::name} to "&a&lShop"
+    set {triak::menu::slot::10::lore} to "&7Click to open shop|&7|&e▶ Click to open"
+    set {triak::menu::slot::10::action} to "command"
+    set {triak::menu::slot::10::value} to "shop"
+    set {triak::menu::slot::10::perm} to "triak.menu.shop"
+
+    # Slot 11 - Teleport / Warps
+    set {triak::menu::slot::11::material} to ender pearl
+    set {triak::menu::slot::11::name} to "&b&lTeleports"
+    set {triak::menu::slot::11::lore} to "&7Travel around the server|&7|&e▶ Click to open"
+    set {triak::menu::slot::11::action} to "command"
+    set {triak::menu::slot::11::value} to "warps"
+    set {triak::menu::slot::11::perm} to "triak.menu.warps"
+
+    # Slot 12 - Stats
+    set {triak::menu::slot::12::material} to player head
+    set {triak::menu::slot::12::name} to "&6&lMy Stats"
+    set {triak::menu::slot::12::lore} to "&7View your statistics|&7|&e▶ Click to view"
+    set {triak::menu::slot::12::action} to "dialog"
+    set {triak::menu::slot::12::value} to "stats"
+    set {triak::menu::slot::12::perm} to "triak.menu"
+
+    # Slot 13 - Center - Discord / Links
+    set {triak::menu::slot::13::material} to {@esc-button-icon}
+    set {triak::menu::slot::13::name} to "{@esc-button-icon-name}"
+    set {triak::menu::slot::13::lore} to "&7The main Triak Menu|&7DonutSMP style ESC button|&7|&aThis menu opens from ESC!"
+    set {triak::menu::slot::13::action} to "close"
+    set {triak::menu::slot::13::value} to ""
+    set {triak::menu::slot::13::perm} to "triak.menu"
+
+    # Slot 14 - Settings
+    set {triak::menu::slot::14::material} to comparator
+    set {triak::menu::slot::14::name} to "&e&lSettings"
+    set {triak::menu::slot::14::lore} to "&7Configure your preferences|&7|&e▶ Click to open"
+    set {triak::menu::slot::14::action} to "command"
+    set {triak::menu::slot::14::value} to "settings"
+    set {triak::menu::slot::14::perm} to "triak.menu.settings"
+
+    # Slot 15 - Pay / Economy
+    set {triak::menu::slot::15::material} to gold ingot
+    set {triak::menu::slot::15::name} to "&6&lPay"
+    set {triak::menu::slot::15::lore} to "&7Pay other players|&7|&e▶ Click to open"
+    set {triak::menu::slot::15::action} to "dialog"
+    set {triak::menu::slot::15::value} to "pay"
+    set {triak::menu::slot::15::perm} to "triak.menu.pay"
+
+    # Slot 16 - Leaderboards
+    set {triak::menu::slot::16::material} to nether star
+    set {triak::menu::slot::16::name} to "&d&lLeaderboards"
+    set {triak::menu::slot::16::lore} to "&7Top players|&7|&e▶ Click to view"
+    set {triak::menu::slot::16::action} to "command"
+    set {triak::menu::slot::16::value} to "leaderboards top"
+    set {triak::menu::slot::16::perm} to "triak.menu"
+
+    # Fill rest with glass
+    set {triak::menu::fill::material} to black stained glass pane
+    set {triak::menu::fill::name} to " "
+
+    # --- DIALOG MENU BUTTONS (SkBee Native Dialog - Shows in ESC) ---
+    # These are the buttons inside the ESC dialog (when you press ESC > Triak Menu)
+    # Fully customizable - add as many as you want
+    set {triak::dialog::1::label} to "&a&lShop"
+    set {triak::dialog::1::tooltip} to "&7Open the server shop"
+    set {triak::dialog::1::action} to "shop"
+    set {triak::dialog::1::perm} to "triak.menu.shop"
+
+    set {triak::dialog::2::label} to "&b&lWarps & Teleports"
+    set {triak::dialog::2::tooltip} to "&7Teleport around"
+    set {triak::dialog::2::action} to "warps"
+    set {triak::dialog::2::perm} to "triak.menu.warps"
+
+    set {triak::dialog::3::label} to "&6&lMy Stats"
+    set {triak::dialog::3::tooltip} to "&7View your stats"
+    set {triak::dialog::3::action} to "stats"
+    set {triak::dialog::3::perm} to "triak.menu"
+
+    set {triak::dialog::4::label} to "&e&lSettings"
+    set {triak::dialog::4::tooltip} to "&7Your preferences"
+    set {triak::dialog::4::action} to "settings"
+    set {triak::dialog::4::perm} to "triak.menu.settings"
+
+    set {triak::dialog::5::label} to "&6&lPay Player"
+    set {triak::dialog::5::tooltip} to "&7Send money to others"
+    set {triak::dialog::5::action} to "pay"
+    set {triak::dialog::5::perm} to "triak.menu.pay"
+
+    set {triak::dialog::6::label} to "&d&lDiscord & Links"
+    set {triak::dialog::6::tooltip} to "&7Join our community"
+    set {triak::dialog::6::action} to "links"
+    set {triak::dialog::6::perm} to "triak.menu"
+
+    set {triak::dialog::7::label} to "&c&lClose"
+    set {triak::dialog::7::tooltip} to "&7Close menu"
+    set {triak::dialog::7::action} to "close"
+    set {triak::dialog::7::perm} to "triak.menu"
+
+    # --- SERVER LINKS (Fallback) ---
+    # For 1.21 - 1.21.5, these appear in ESC > Server Links...
+    if {@enable-server-links} is true:
+        set {triak::serverlinks::1::name} to "{@server-link-name}"
+        set {triak::serverlinks::1::url} to "{@server-link-url}"
+        set {triak::serverlinks::1::type} to "{@server-link-type}"
+
+    broadcast "{@prefix}&aTriakMenu loaded! ESC button: {@esc-button-name} | Dialogs: {@dialog-use-skbee} | Bedrock: {@enable-bedrock-support}"
+
+# ================================================================
+# FUNCTIONS
+# ================================================================
+
+function triak_isBedrock(p: player) :: boolean:
+    # Detect Bedrock via Floodgate API if available, else via prefix
+    if {@enable-bedrock-support} is false:
+        return false
+    # Check via Floodgate API using skript-reflect if available
+    # Fallback to prefix check
+    if name of {_p} starts with "{@bedrock-prefix}":
+        return true
+    # Check if player has floodgate tag (common method)
+    if {floodgate::%uuid of {_p}%} is set:
+        return true
+    # Try placeholderAPI if available: %floodgate_is_bedrock%
+    # This will be handled externally, for now return false
+    return false
+
+function triak_openMainMenu(p: player):
+    # Permission check
+    if {_p} doesn't have permission "{@menu-permission}":
+        send "{@prefix}{@no-permission}" to {_p}
+        stop
+    # Bedrock check
+    if triak_isBedrock({_p}) is true:
+        if {@bedrock-auto-message} is true:
+            send "{@prefix}{@bedrock-detected}" to {_p}
+        # For Bedrock, open dialog instead of chest if Geyser supports it
+        if {@dialog-use-skbee} is true:
+            triak_openDialogMenu({_p})
+            stop
+    # Create inventory
+    set {_rows} to {@menu-rows}
+    if {_rows} < 1:
+        set {_rows} to 3
+    if {_rows} > 6:
+        set {_rows} to 6
+    set {_size} to {_rows} * 9
+    set {_inv} to chest inventory with {_size} rows named "{@menu-title}"
+    
+    # Fill with glass
+    loop {_size} times:
+        set slot (loop-number - 1) of {_inv} to {triak::menu::fill::material} named {triak::menu::fill::name}
+    
+    # Place custom buttons
+    loop {triak::menu::slot::*}:
+        set {_slot} to loop-index parsed as integer
+        set {_mat} to {triak::menu::slot::%{_slot}%::material}
+        set {_name} to {triak::menu::slot::%{_slot}%::name}
+        set {_lore} to {triak::menu::slot::%{_slot}%::lore}
+        set {_perm} to {triak::menu::slot::%{_slot}%::perm}
+        if {_p} has permission {_perm}:
+            if {_lore} contains "|":
+                set {_lore::*} to {_lore} split at "|"
+            else:
+                set {_lore::*} to {_lore}
+            set slot {_slot} of {_inv} to {_mat} named {_name} with lore {_lore::*}
+
+    open {_inv} to {_p}
+    play sound "{@menu-sound}" with volume 1 and pitch 1 to {_p}
+
+function triak_openDialogMenu(p: player):
+    # This uses SkBee's Dialog API - DonutSMP style native dialog
+    # No inventory, pure Minecraft dialog (works in ESC and via command)
+    if {_p} doesn't have permission "{@menu-permission}":
+        send "{@prefix}{@no-permission}" to {_p}
+        stop
+
+    # Build NBT for identifying dialog
+    open multi action dialog to {_p}:
+        title: "{@dialog-title}"
+        external_title: "{@dialog-external-title}"
+        columns: 2
+        body:
+            add item body:
+                item: {@esc-button-icon}
+                description:
+                    add plain message body:
+                        contents: "&6&l{@esc-button-name}\n&7DonutSMP style ESC menu\n&7Click a button below!"
+            add plain message body:
+                contents: "&7Welcome to &6Triak&7! Select an option below.\n&7This menu is also available via ESC > {@esc-button-name}"
+        actions:
+            loop {triak::dialog::*}:
+                set {_id} to loop-index parsed as integer
+                set {_label} to {triak::dialog::%{_id}%::label}
+                set {_tooltip} to {triak::dialog::%{_id}%::tooltip}
+                set {_action} to {triak::dialog::%{_id}%::action}
+                set {_perm} to {triak::dialog::%{_id}%::perm}
+                if {_p} has permission {_perm}:
+                    set {_nbt} to empty nbt compound
+                    set string tag "action" of {_nbt} to {_action}
+                    set int tag "slot" of {_nbt} to {_id}
+                    add dynamic action button:
+                        label: {_label}
+                        tooltip: {_tooltip}
+                        id: "triak:menu_action"
+                        additions: {_nbt}
+        exit_action:
+            add dynamic action button:
+                label: "&cClose"
+                id: "triak:close_menu"
+
+function triak_openStatsDialog(p: player):
+    open notice dialog to {_p}:
+        title: "&6My Stats"
+        body:
+            add plain message body:
+                contents: "&7Your stats:\n&6Kills: &f%{kills::%uuid of {_p}%}% ? 0%\n&6Deaths: &f%{deaths::%uuid of {_p}%}% ? 0%\n&6Playtime: &f%playtime of {_p}%"
+            add item body:
+                item: player head
+        action:
+            add dynamic action button:
+                label: "&eBack to Menu"
+                id: "triak:back_to_menu"
+
+function triak_openPayDialog(p: player):
+    open multi action dialog to {_p}:
+        title: "Pay Player"
+        body:
+            add plain message body:
+                contents: "Send money to another player"
+        inputs:
+            add text input:
+                key: "target"
+                label: "Player Name"
+                max_length: 16
+            add number range input:
+                key: "amount"
+                label: "Amount"
+                start: 1
+                end: 10000
+                step: 1
+                initial: 100
+        actions:
+            set {_n} to empty nbt compound
+            add dynamic action button:
+                label: "&aPay"
+                id: "triak:pay_confirm"
+                additions: {_n}
+            add dynamic action button:
+                label: "&eBack"
+                id: "triak:back_to_menu"
+
+function triak_handleAction(p: player, action: string):
+    # This is where you customize what each button does!
+    # Fully customizable - make it perform commands, open menus, etc.
+    
+    if {_action} is "shop":
+        # Example: open shop - you can replace with your own shop command
+        send "{@prefix}&aOpening shop..." to {_p}
+        make {_p} execute command "shop"
+        # Or open another dialog:
+        # triak_openShopDialog({_p})
+    
+    else if {_action} is "warps":
+        send "{@prefix}&aOpening warps..." to {_p}
+        make {_p} execute command "warps"
+    
+    else if {_action} is "stats":
+        triak_openStatsDialog({_p})
+    
+    else if {_action} is "settings":
+        send "{@prefix}&aOpening settings..." to {_p}
+        make {_p} execute command "settings"
+        # Example of running a custom settings dialog:
+        # open multi action dialog to {_p}: etc.
+    
+    else if {_action} is "pay":
+        triak_openPayDialog({_p})
+    
+    else if {_action} is "links":
+        # Open links dialog
+        open multi action dialog to {_p}:
+            title: "Server Links"
+            body:
+                add plain message body:
+                    contents: "&7Join our community!"
+            actions:
+                add static action button:
+                    label: "&9Discord"
+                    tooltip: "&7Click to open Discord"
+                    action: open url "{@server-link-url}"
+                add dynamic action button:
+                    label: "&eBack"
+                    id: "triak:back_to_menu"
+    
+    else if {_action} is "leaderboards":
+        make {_p} execute command "leaderboard"
+    
+    else if {_action} is "close":
+        close {_p}'s inventory
+        {_p}.closeDialog()
+    
+    else:
+        # Custom command - allows any command from menu config
+        # If action starts with "c:" then run as console
+        if {_action} starts with "c:":
+            set {_cmd} to subtext of {_action} from characters 3 to length of {_action}
+            replace all "{player}" with name of {_p} in {_cmd}
+            execute console command {_cmd}
+        else if {_action} starts with "console:":
+            set {_cmd} to subtext of {_action} from characters 9 to length of {_action}
+            replace all "{player}" with name of {_p} in {_cmd}
+            execute console command {_cmd}
+        else:
+            # Run as player
+            replace all "{player}" with name of {_p} in {_action}
+            make {_p} execute command {_action}
+
+# ================================================================
+# COMMANDS
+# ================================================================
+
+command /triakmenu [<text>] [<text>] [<text>]:
+    aliases: /tm, /trmenu, /escmenu, /pause
+    permission: {@menu-permission}
+    permission message: {@prefix}{@no-permission}
+    trigger:
+        if arg-1 is not set:
+            # Default - open main menu
+            triak_openMainMenu(player)
+            stop
+        if arg-1 is "open" or arg-1 is "gui":
+            triak_openMainMenu(player)
+        else if arg-1 is "dialog":
+            triak_openDialogMenu(player)
+        else if arg-1 is "reload":
+            if player has permission "triak.admin":
+                execute console command "sk reload TriakMenu"
+                send "{@prefix}{@reload-success}" to player
+            else:
+                send "{@prefix}{@no-permission}" to player
+        else if arg-1 is "help":
+            send "&8&m------------------------------"
+            send "&6&lTriak Menu Help"
+            send "&e/triakmenu &7- Open main GUI menu"
+            send "&e/triakmenu dialog &7- Open native dialog menu (DonutSMP style)"
+            send "&e/triakmenu open &7- Open GUI"
+            send "&e/triakmenu reload &7- Reload script (admin)"
+            send "&e/triakmenu help &7- This help"
+            send "&8&m------------------------------"
+        else:
+            # Treat arg-1 as action
+            triak_handleAction(player, arg-1)
+
+# Command that is called from ESC dialog (datapack)
+command /triakmenu-internal <text>:
+    permission: {@menu-permission}
+    trigger:
+        triak_handleAction(player, arg-1)
+
+# ================================================================
+# EVENTS
+# ================================================================
+
+# On join - setup server links and welcome
+on join:
+    # Wait a bit for player to fully join
+    wait 2 ticks
+
+    # Bedrock detection
+    if triak_isBedrock(player) is true:
+        if {@bedrock-auto-message} is true:
+            send "{@prefix}{@bedrock-detected}" to player
+            send "{@prefix}&7Use &e/triakmenu &7to open menu (ESC dialog may not show on Bedrock, but Geyser 2.5+ translates it!)" to player
+
+    # ServerLinks handling (for 1.21-1.21.5 fallback)
+    # Note: Actual ServerLinks are set globally on load via Paper API.
+    # This event is just for per-player links if needed.
+    # If you have skript-reflect, uncomment below to add per-player links:
+    
+    # Example with skript-reflect (requires skript-reflect):
+    # import:
+    #   org.bukkit.Bukkit
+    #   java.net.URI
+    # Then: Bukkit.getServer().getServerLinks().addLink("{@server-link-name}", URI.create("{@server-link-url}"))
+
+    # Send info about ESC button
+    wait 3 seconds
+    if player has permission "{@menu-permission}":
+        send "{@prefix}&7Press &eESC &7to see &6{@esc-button-name} &7button! (DonutSMP style)" to player
+        # For Bedrock, also send actionbar
+        if triak_isBedrock(player) is true:
+            send action bar "&6/triakmenu &7for menu" to player
+
+# Inventory click handling for GUI menu
+on inventory click:
+    if name of event-inventory is "{@menu-title}":
+        cancel event
+        if clicked slot is not set:
+            stop
+        set {_slot} to clicked slot
+        # Check if it's a menu button
+        if {triak::menu::slot::%{_slot}%::action} is set:
+            set {_action} to {triak::menu::slot::%{_slot}%::value}
+            set {_type} to {triak::menu::slot::%{_slot}%::action}
+            set {_perm} to {triak::menu::slot::%{_slot}%::perm}
+            if player doesn't have permission {_perm}:
+                send "{@prefix}{@no-permission}" to player
+                stop
+            close player's inventory
+            wait 1 tick
+            if {_type} is "command":
+                triak_handleAction(player, {_action})
+            else if {_type} is "console":
+                execute console command "%{_action}%" with "{player}" replaced with name of player
+            else if {_type} is "dialog":
+                triak_handleAction(player, {_action})
+            else if {_type} is "menu":
+                # Open another menu - you can customize
+                triak_handleAction(player, {_action})
+            else if {_type} is "close":
+                close player's inventory
+            else if {_type} is "url":
+                # Can't open URL from inventory, send link
+                send "{@prefix}&7Link: &e%{_action}%" to player
+
+# SkBee Dialog custom click event - handles ESC dialog buttons
+on custom click:
+    set {_key} to "%event-namespacedkey%"
+    
+    if {_key} is "triak:menu_action":
+        set {_action} to string tag "action" of event-nbt
+        triak_handleAction(player, {_action})
+    
+    else if {_key} is "triak:close_menu":
+        player.closeDialog()
+    
+    else if {_key} is "triak:back_to_menu":
+        triak_openDialogMenu(player)
+    
+    else if {_key} is "triak:pay_confirm":
+        set {_target} to string tag "target" of event-nbt
+        set {_amount} to float tag "amount" of event-nbt
+        if {_target} is not set:
+            send "{@prefix}&cPlease enter a player name!" to player
+            stop
+        if {_amount} is not set:
+            set {_amount} to 100
+        # Example pay logic - replace with your economy plugin
+        send "{@prefix}&aYou paid &e%{_amount}% &ato %{_target}%!" to player
+        # execute console command "eco give %{_target}% %{_amount}%"
+        # execute console command "eco take %player% %{_amount}%"
+
+# Optional: Handle PlayerLinksSendEvent for per-player server links (Paper 1.21+)
+# This requires skript-reflect or an addon that exposes the event
+# on player links send:
+#   add server link with name "{@server-link-name}" and url "{@server-link-url}" to event-links
+
+# ================================================================
+# FLOODGATE / GEYSER INTEGRATION
+# ================================================================
+
+# Detect Floodgate players via join and set variable
+on join:
+    # If Floodgate is installed, API check via skript-reflect would be:
+    # import org.geysermc.floodgate.api.FloodgateApi
+    # if FloodgateApi.getInstance().isFloodgatePlayer(uuid of player):
+    #   set {floodgate::%uuid of player%} to true
+    # For now, we use prefix detection as fallback
+    if name of player starts with "{@bedrock-prefix}":
+        set {floodgate::%uuid of player%} to true
+        set {triak::bedrock::%player%} to true
+
+on quit:
+    delete {floodgate::%uuid of player%}
+    delete {triak::bedrock::%player%}
+
+# ================================================================
+# SERVER LINKS SETUP (Paper API via Skript on load)
+# ================================================================
+
+# This section sets up global server links using Paper's API
+# It will only work if you have skript-reflect installed
+# If you don't have skript-reflect, use a separate plugin like AdvancedLinks or mServerLinks
+# Or use the datapack dialog method (recommended for 1.21.6+)
+
+on load:
+    wait 5 ticks
+    # Try to set server links if enabled
+    if {@enable-server-links} is true:
+        # We use Skript's ability to run Java via reflection if available
+        # If skript-reflect is not installed, this will silently fail and you should use datapack method
+        try:
+            # This is pseudo-code for skript-reflect - uncomment if you have it
+            # import:
+            #   org.bukkit.Bukkit
+            #   java.net.URI
+            # set {_links} to Bukkit.getServer().getServerLinks()
+            # {_links}.addLink("{@server-link-name}", URI.create("{@server-link-url}"))
+            broadcast "{@prefix}&7ServerLinks: {@server-link-name} -> {@server-link-url} (Enable via datapack for 1.21.11)"
+        catch:
+            broadcast "{@prefix}&cServerLinks setup requires skript-reflect or use datapack method (recommended)"
+
+# ================================================================
+# CUSTOMIZATION GUIDE
+# ================================================================
+# HOW TO CUSTOMIZE BUTTONS TO PERFORM COMMANDS:
+#
+# 1. GUI Menu (Inventory):
+#    Edit the "on load:" section at top where menu slots are defined.
+#    - material: item type (emerald, diamond, etc.)
+#    - name: display name with color codes
+#    - lore: description, use | for new line
+#    - action: command, console, dialog, menu, close, url
+#    - value: the command to run or action id
+#    - perm: permission required
+#
+#    Example to make button run command "/warp spawn":
+#      set {triak::menu::slot::20::material} to compass
+#      set {triak::menu::slot::20::name} to "&aSpawn"
+#      set {triak::menu::slot::20::lore} to "&7Go to spawn"
+#      set {triak::menu::slot::20::action} to "command"
+#      set {triak::menu::slot::20::value} to "warp spawn"
+#      set {triak::menu::slot::20::perm} to "triak.menu"
+#
+#    Example to run console command "give {player} diamond 5":
+#      set {triak::menu::slot::21::action} to "console"
+#      set {triak::menu::slot::21::value} to "give {player} diamond 5"
+#
+# 2. Dialog Menu (ESC native dialog):
+#    Edit {triak::dialog::*} variables in "on load:"
+#    - label: button text
+#    - tooltip: hover text
+#    - action: id that gets handled in triak_handleAction function
+#    - perm: permission
+#
+#    Then add handling in function triak_handleAction:
+#      else if {_action} is "myaction":
+#          make {_p} execute command "mycommand"
+#
+# 3. Datapack ESC Button:
+#    Edit data/triak/dialog/main.json
+#    - Change "external_title" to change ESC button name
+#    - Change "title" to change dialog title
+#    - Add more actions with "minecraft:run_command" to run commands
+#    - Icon: change item body "item": "minecraft:chest" to any item
+#
+# 4. For Geyser/Bedrock:
+#    - Geyser 2.5+ auto-translates dialogs to Bedrock forms
+#    - Bedrock players can always use /triakmenu command
+#    - Detect via {triak::bedrock::%player%} variable
+#
+# 5. Icon customization:
+#    - GUI: change material per slot
+#    - Dialog: edit item body in SkBee function or datapack JSON
+#    - ESC button itself doesn't have icon (Minecraft limitation),
+#      but dialog that opens DOES have icon support via item body.
+#
+# ================================================================
+# END OF FILE
+# ================================================================

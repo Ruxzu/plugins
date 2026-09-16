@@ -1,0 +1,49 @@
+# TriakMenu Config - Paper 1.21.11
+
+# ESC Button that appears in pause menu
+esc-button:
+  name: "Triak Menu"
+  external-title: "Triak Menu"
+  icon: "chest"
+  width: 200
+  columns: 1
+
+# ServerLinks fallback (for 1.21-1.21.5, still works in 1.21.11)
+server-links:
+  enabled: true
+  name: "Triak Menu"
+  url: "https://discord.gg/triak"
+  type: "CUSTOM" # REPORT_BUG, COMMUNITY, WEBSITE, etc.
+
+# Main GUI menu
+menu:
+  title: "&8&lTriak &6&lMenu"
+  rows: 3
+  sound: "ENTITY_EXPERIENCE_ORB_PICKUP"
+
+# Geyser / Floodgate Bedrock support
+bedrock:
+  enabled: true
+  prefix: "."
+  auto-message: true
+
+# Menu items - fully customizable
+# Format: slot, material, name, lore, action, value, permission
+items:
+  10:
+    material: EMERALD
+    name: "&a&lShop"
+    lore:
+      - "&7Click to open shop"
+      - ""
+      - "&e▶ Click"
+    action: "command"
+    value: "shop"
+    permission: "triak.menu.shop"
+  11:
+    material: ENDER_PEARL
+    name: "&b&lTeleports"
+    lore: ["&7Travel around"]
+    action: "command"
+    value: "warps"
+    permission: "triak.menu.warps"

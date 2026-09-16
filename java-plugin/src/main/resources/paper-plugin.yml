@@ -1,0 +1,28 @@
+name: TriakMenu
+version: '1.0.0'
+main: com.triak.menu.TriakMenuPlugin
+api-version: '1.21'
+author: Triak
+description: DonutSMP style ESC button - Paper 1.21.11
+website: https://triak.example.com
+
+# Bootstrapper for Dialog registration (required for pause menu button)
+bootstrapper: com.triak.menu.TriakMenuBootstrap
+loader: com.triak.menu.TriakMenuLoader
+
+permissions:
+  triak.menu:
+    description: Use Triak Menu
+    default: true
+  triak.admin:
+    description: Admin
+    default: op
+  triak.esc:
+    description: See ESC button
+    default: true
+
+commands:
+  triakmenu:
+    description: Open Triak Menu
+    aliases: [tm, escmenu, pause]
+    permission: triak.menu

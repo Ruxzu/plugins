@@ -1,0 +1,10 @@
+{
+  "pack": {
+    "pack_format": 82,
+    "description": "Triak Menu - DonutSMP style ESC button - Paper 1.21.11\nAdds Triak Menu button to pause menu",
+    "supported_formats": {
+      "min_inclusive": 82,
+      "max_inclusive": 82
+    }
+  }
+}

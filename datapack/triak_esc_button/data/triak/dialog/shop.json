@@ -1,0 +1,82 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Shop",
+    "color": "green",
+    "bold": true
+  },
+  "external_title": {
+    "text": "Shop"
+  },
+  "body": [
+    {
+      "type": "minecraft:item",
+      "item": {
+        "id": "minecraft:emerald",
+        "count": 1
+      },
+      "description": {
+        "type": "minecraft:plain_message",
+        "contents": {
+          "text": "Server Shop\nBuy items and more",
+          "color": "gray"
+        }
+      },
+      "width": 16,
+      "height": 16
+    }
+  ],
+  "columns": 2,
+  "actions": [
+    {
+      "label": {
+        "text": "Buy Blocks",
+        "color": "green"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "shop blocks"
+      }
+    },
+    {
+      "label": {
+        "text": "Buy Tools",
+        "color": "aqua"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "shop tools"
+      }
+    },
+    {
+      "label": {
+        "text": "Sell Items",
+        "color": "gold"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "shop sell"
+      }
+    },
+    {
+      "label": {
+        "text": "Back",
+        "color": "yellow"
+      },
+      "action": {
+        "type": "minecraft:show_dialog",
+        "dialog": "triak:main"
+      }
+    }
+  ],
+  "exit_action": {
+    "label": {
+      "translate": "gui.back"
+    },
+    "action": {
+      "type": "minecraft:show_dialog",
+      "dialog": "triak:main"
+    },
+    "width": 200
+  }
+}

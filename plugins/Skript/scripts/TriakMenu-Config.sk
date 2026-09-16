@@ -1,0 +1,105 @@
+# ================================================================
+# TriakMenu Config - Easy customization
+# Edit this file to change menu without touching main script
+# ================================================================
+
+# This file is loaded first and sets variables used by TriakMenu.sk
+# You can edit colors, names, commands, etc.
+
+on load:
+    # Wait for main to clear
+    wait 1 second
+
+    # === ESC BUTTON CUSTOMIZATION ===
+    # Change the name that appears in ESC menu (requires datapack reload + /minecraft:datapack disable/enable or restart)
+    # Edit datapack/triak_esc_button/data/triak/dialog/main.json external_title for actual ESC button text
+    set {triak::config::esc::name} to "Triak Menu"
+    set {triak::config::esc::icon} to "chest"
+    
+    # === MENU CUSTOMIZATION ===
+    # Title with MiniMessage or legacy colors
+    set {triak::config::menu::title} to "&8&lTriak &6&lMenu"
+    set {triak::config::menu::rows} to 3
+    
+    # === BUTTONS - Fully customizable ===
+    # You can add unlimited buttons, just use new slot numbers
+    # Slot numbers: 0-26 for 3 rows, 0-53 for 6 rows
+    # Example: Slot 20 - Custom button
+    
+    # Custom example 1: Discord
+    set {triak::menu::slot::20::material} to diamond
+    set {triak::menu::slot::20::name} to "&9&lDiscord"
+    set {triak::menu::slot::20::lore} to "&7Join our Discord!|&7|&bClick to open"
+    set {triak::menu::slot::20::action} to "url"
+    set {triak::menu::slot::20::value} to "https://discord.gg/triak"
+    set {triak::menu::slot::20::perm} to "triak.menu"
+
+    # Custom example 2: Run console command to give kit
+    set {triak::menu::slot::21::material} to iron sword
+    set {triak::menu::slot::21::name} to "&c&lFree Kit"
+    set {triak::menu::slot::21::lore} to "&7Get daily kit|&7|&e▶ Click"
+    set {triak::menu::slot::21::action} to "console"
+    set {triak::menu::slot::21::value} to "kit daily {player}"
+    set {triak::menu::slot::21::perm} to "triak.menu.kit"
+
+    # Custom example 3: Run player command
+    set {triak::menu::slot::22::material} to book
+    set {triak::menu::slot::22::name} to "&e&lRules"
+    set {triak::menu::slot::22::lore} to "&7View server rules"
+    set {triak::menu::slot::22::action} to "command"
+    set {triak::menu::slot::22::value} to "rules"
+    set {triak::menu::slot::22::perm} to "triak.menu"
+
+    # === DIALOG BUTTONS - ESC Menu ===
+    # These appear when you press ESC > Triak Menu
+    # You can add more, edit labels, make them run any command
+
+    # Example: Add custom dialog button 8
+    set {triak::dialog::8::label} to "&9&lMy Custom Button"
+    set {triak::dialog::8::tooltip} to "&7This is fully customizable!"
+    set {triak::dialog::8::action} to "custom"
+    set {triak::dialog::8::perm} to "triak.menu"
+
+    # To make custom action work, edit function triak_handleAction in TriakMenu.sk:
+    # else if {_action} is "custom":
+    #     make {_p} execute command "mycommand"
+
+    broadcast "&a[Triak] Config loaded!"
+
+# ================================================================
+# HOW TO MAKE BUTTON PERFORM COMMANDS - GUIDE
+# ================================================================
+# 
+# For GUI menu (inventory):
+#   action types:
+#     - "command" = run command as player: /shop, /warp spawn, etc.
+#     - "console" = run as console: give {player} diamond 1, eco give {player} 100
+#     - "dialog" = open another dialog/menu: stats, pay, etc. (handled in triak_handleAction)
+#     - "close" = close menu
+#     - "url" = send link (can't open URL from inventory, but sends message)
+#
+# For Dialog menu (ESC):
+#   action is a string id that you handle in triak_handleAction function
+#   Example: if you set action to "heal", then in triak_handleAction:
+#     else if {_action} is "heal":
+#         make {_p} execute command "heal"
+#         send "&aHealed!" to {_p}
+#
+# You can also make dialog buttons run commands directly via datapack:
+#   Edit data/triak/dialog/main.json and change action to:
+#     "action": {
+#       "type": "minecraft:run_command",
+#       "command": "heal"
+#     }
+#   Or open URL:
+#     "action": {
+#       "type": "open_url",
+#       "url": "https://discord.gg/triak"
+#     }
+#
+# Icon customization:
+#   - GUI: change material per slot (emerald, diamond, player head, etc.)
+#   - Dialog: edit item body in main.json or in SkBee function triak_openDialogMenu
+#     Change "item": "minecraft:chest" to any item like "minecraft:nether_star"
+#
+# ================================================================

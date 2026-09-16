@@ -1,0 +1,63 @@
+# ================================================================
+# TriakServerLinks - Paper ServerLinks API via skript-reflect
+# For Paper 1.21+ (fallback for 1.21-1.21.5, still works in 1.21.11)
+# Requires: skript-reflect
+# This adds "Server Links..." button in ESC menu with custom links
+# Note: ServerLinks can ONLY open URLs, not run commands.
+# For command buttons, use Dialogs (TriakMenu.sk + datapack)
+# ================================================================
+
+# Uncomment if you have skript-reflect and want ServerLinks
+# This is optional - the datapack dialog method is recommended for 1.21.6+
+
+# options:
+#     link-name: "Triak Menu"
+#     link-url: "https://discord.gg/triak"
+
+# import:
+#     org.bukkit.Bukkit
+#     java.net.URI
+#     org.bukkit.ServerLinks
+#     org.bukkit.ServerLinks$Type
+
+# on load:
+#     set {_links} to Bukkit.getServer().getServerLinks()
+#     # Clear existing custom links if needed
+#     # loop {_links}.getLinks():
+#     #   {_links}.removeLink(loop-value)
+#     
+#     # Add custom link with custom display name
+#     {_links}.addLink("{@link-name}", URI.create("{@link-url}"))
+#     
+#     # Or add with built-in type:
+#     # {_links}.addLink(ServerLinks.Type.WEBSITE, URI.create("https://triak.example.com"))
+#     # {_links}.addLink(ServerLinks.Type.COMMUNITY, URI.create("https://discord.gg/triak"))
+#     
+#     broadcast "&a[Triak] ServerLinks registered: {@link-name} -> {@link-url}"
+
+# # Per-player links (Paper 1.21.1+ PlayerLinksSendEvent)
+# on player links send:
+#     # This event allows modifying links per player
+#     # Example: Add staff-only link
+#     if player has permission "triak.staff":
+#         add server link with name "&cStaff Panel" and url "https://triak.example.com/staff" to event-links
+
+# ================================================================
+# Alternative without skript-reflect: Use a plugin like:
+# - AdvancedLinks (https://www.spigotmc.org/resources/advancedlinks.117605/)
+# - mServerLinks (https://hangar.papermc.io/powercas_gamer/mServerLinks)
+# Config example for mServerLinks:
+#
+# links {
+#   triak {
+#     name="Triak Menu"
+#     uri="https://discord.gg/triak"
+#   }
+# }
+# ================================================================
+
+# Simple version without skript-reflect - just inform player
+on join:
+    wait 3 seconds
+    if player has permission "triak.menu":
+        send "&8[&6Triak&8] &7Press &eESC &7> &6Triak Menu &7for server menu!" to player

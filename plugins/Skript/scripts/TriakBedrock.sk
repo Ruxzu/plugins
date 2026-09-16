@@ -1,0 +1,83 @@
+# ================================================================
+# TriakBedrock - Geyser / Floodgate Support
+# Handles Bedrock players for TriakMenu
+# Paper 1.21.11 | Skript + SkBee + Floodgate
+# ================================================================
+
+options:
+    bedrock-prefix: .
+    enable-forms: true
+    menu-title: &8&lTriak &6&lMenu
+    use-floodgate-forms: false # Set true if you have Floodgate forms addon
+
+# Detect Bedrock players on join and cache
+on join:
+    # Method 1: Prefix check (Floodgate default is .)
+    if name of player starts with "{@bedrock-prefix}":
+        set {triak::bedrock::%player%} to true
+        set {triak::bedrock::%uuid of player%} to true
+        send "&8[&6Triak&8] &7Bedrock detected! Use &e/triakmenu &7or ESC (Geyser 2.5+ translates dialogs!)" to player
+    
+    # Method 2: Check if Floodgate API is available via skript-reflect
+    # Uncomment if you have skript-reflect:
+    # import:
+    #   org.geysermc.floodgate.api.FloodgateApi
+    # set {_api} to FloodgateApi.getInstance()
+    # if {_api}.isFloodgatePlayer(uuid of player):
+    #   set {triak::bedrock::%player%} to true
+
+on quit:
+    delete {triak::bedrock::%player%}
+    delete {triak::bedrock::%uuid of player%}
+
+# Command for Bedrock - same as Java but with form fallback
+command /bedrockmenu:
+    aliases: /bmenu, /bm
+    trigger:
+        if {triak::bedrock::%player%} is set:
+            send "&8[&6Triak&8] &aOpening Bedrock compatible menu..."
+            # For Bedrock, we can use SkBee dialog which Geyser translates to form
+            # Or use simple chest GUI (works on Bedrock via Geyser)
+            execute player command "triakmenu dialog"
+        else:
+            send "&cThis command is for Bedrock players. Use /triakmenu"
+
+# If you have Floodgate's form API or SkBee forms, you can add custom Bedrock forms here
+# Example with hypothetical Floodgate forms syntax:
+# function openBedrockForm(p: player):
+#     create new form with title "{@menu-title}" for {_p}:
+#         set form type to simple
+#         add button with text "Shop" to form
+#         add button with text "Warps" to form
+#         add button with text "Stats" to form
+#     open form to {_p}
+
+# Geyser note:
+# Geyser 2.5.0+ automatically translates Java dialogs (1.21.6+) to Bedrock forms.
+# So when a Java dialog is shown via SkBee (open multi action dialog to player),
+# Bedrock players will see it as a native Bedrock form! No extra code needed.
+# Just make sure Geyser is updated.
+
+# For older Geyser, you can use this workaround:
+# When Bedrock player presses ESC, they don't see Java pause menu.
+# So we give them an item or command to open menu.
+
+on join:
+    if {triak::bedrock::%player%} is set:
+        wait 5 ticks
+        # Give them a compass to open menu (Bedrock friendly)
+        # give player compass named "&6Triak Menu" with lore "&7Right click to open"
+        send action bar "&6Triak Menu: &e/triakmenu" to player
+
+# If player right clicks with compass, open menu
+on right click with compass:
+    if name of player's tool is "&6Triak Menu":
+        cancel event
+        execute player command "triakmenu"
+
+# ================================================================
+# PlaceholderAPI support for Bedrock detection
+# If you have PlaceholderAPI + Floodgate expansion:
+# %floodgate_is_bedrock% returns true/false
+# You can use that in Skript via placeholder.
+# ================================================================

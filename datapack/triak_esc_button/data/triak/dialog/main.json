@@ -1,0 +1,166 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "Triak Menu",
+    "color": "gold",
+    "bold": true
+  },
+  "external_title": {
+    "text": "Triak Menu",
+    "color": "gold",
+    "bold": true
+  },
+  "body": [
+    {
+      "type": "minecraft:item",
+      "item": {
+        "id": "minecraft:chest",
+        "count": 1
+      },
+      "description": {
+        "type": "minecraft:plain_message",
+        "contents": {
+          "text": "DonutSMP style ESC menu\nClick a button below to navigate!\n\nThis button is visible in ESC/Pause menu without mods.",
+          "color": "gray"
+        },
+        "width": 300
+      },
+      "show_decoration": false,
+      "show_tooltip": false,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "type": "minecraft:plain_message",
+      "contents": {
+        "text": "Welcome to Triak! Select an option:",
+        "color": "yellow"
+      },
+      "width": 300
+    }
+  ],
+  "columns": 2,
+  "button_width": 150,
+  "actions": [
+    {
+      "label": {
+        "text": "Shop",
+        "color": "green",
+        "bold": true
+      },
+      "tooltip": {
+        "text": "Open server shop"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "triakmenu shop"
+      }
+    },
+    {
+      "label": {
+        "text": "Warps",
+        "color": "aqua",
+        "bold": true
+      },
+      "tooltip": {
+        "text": "Teleport around"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "triakmenu warps"
+      }
+    },
+    {
+      "label": {
+        "text": "My Stats",
+        "color": "gold",
+        "bold": true
+      },
+      "tooltip": {
+        "text": "View your statistics"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "triakmenu stats"
+      }
+    },
+    {
+      "label": {
+        "text": "Settings",
+        "color": "yellow",
+        "bold": true
+      },
+      "tooltip": {
+        "text": "Configure preferences"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "triakmenu settings"
+      }
+    },
+    {
+      "label": {
+        "text": "Pay Player",
+        "color": "gold"
+      },
+      "tooltip": {
+        "text": "Send money"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "triakmenu pay"
+      }
+    },
+    {
+      "label": {
+        "text": "Discord & Links",
+        "color": "blue"
+      },
+      "tooltip": {
+        "text": "Join community"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "triakmenu links"
+      }
+    },
+    {
+      "label": {
+        "text": "Leaderboards",
+        "color": "light_purple",
+        "bold": true
+      },
+      "tooltip": {
+        "text": "Top players"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "triakmenu leaderboards"
+      }
+    },
+    {
+      "label": {
+        "text": "Close",
+        "color": "red"
+      },
+      "width": 150,
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "triakmenu close"
+      }
+    }
+  ],
+  "exit_action": {
+    "label": {
+      "translate": "gui.back"
+    },
+    "width": 200
+  }
+}
